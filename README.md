@@ -24,7 +24,7 @@ This project is based on version 3 of python.
 
 In the root folder `/`, create a vritual environment runnning the command:
 ```
-python -m venv env
+python3 -m venv env
 ```
 
 To activate the virtual environement:
