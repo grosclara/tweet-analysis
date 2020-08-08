@@ -2,7 +2,7 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=visualstudiocode,python
 
 ### Secret variables ###
-.credentials
+.credentials.py
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
