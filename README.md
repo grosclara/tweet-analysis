@@ -95,12 +95,12 @@ In the root directory `/`, create a `.credentials.py` file that will contain our
 # Twitter App access keys for @grosclara
 
 #Consume:
-CONSUMER_KEY=my-api-key
-CONSUMER_SECRET=my-api-secret-key
+CONSUMER_KEY='my-api-key'
+CONSUMER_SECRET='my-api-secret-key'
 
 #Access:
-ACCESS_TOKEN=my-access-token
-ACCESS_SECRET=my-secret-access-token
+ACCESS_TOKEN='my-access-token'
+ACCESS_SECRET='my-secret-access-token'
 ```
 
 The `CONSUMER_KEY` (API Key), `CONSUMER_SECRET` (API Secret Key), `ACCESS_TOKEN` and `ACCESS_SECRET` variables must match the corresponding values of the Twitter credentials of the app you have just created. 
