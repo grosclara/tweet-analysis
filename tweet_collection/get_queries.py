@@ -15,25 +15,18 @@ def get_candidate_queries(num_candidate, file_path, keyword_type):
     # Validation of parameters
     assert keyword_type == 'hashtags' or keyword_type == 'keywords', "Invalid keyword_type parameter: either 'hashtags' or 'keywords'"
     assert type(num_candidate) == int, "num_candidate should be a int"
+    assert num_candidate > 0, "num_candidate should be positive"
 
-    # Open txt file
-    try:
+    try :
+        # Open txt file
         with open("{0}{1}_candidate_{2}.txt".format(file_path, keyword_type, num_candidate),'r',encoding = 'utf-8') as f:
+            # Retrieve words
             keywords = f.read().split(',')
-            return clean_query(keywords)
-    except IOError:
-            print("Not able to read the following file: {0}{1}_candidate_{2}.txt".format(file_path, keyword_type, num_candidate))
-
-
-def clean_query(keywords):
-    """
-    Return a list of keywords without any duplicates nor empty words.
-    :param keywords: the list of keywords to clean
-    :return: (list) a list of keywords
-    """
-    # Remove duplicate
-    keywords = list(set(keywords)) 
-    # Remove empty keywords
-    keywords = [w.strip() for w in keywords if w.strip()]
-    return keywords
-
+            # Remove empty keywords
+            keywords = [w.strip() for w in keywords if w.strip()]
+            # Remove duplicate and sort list
+            keywords = sorted(set(keywords), key=str.lower)
+            return keywords
+    
+    except IOError as err:
+        raise err
