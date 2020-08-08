@@ -92,13 +92,13 @@ In the root directory `/`, create a `.credentials` file that will contain our lo
 `/.credentials` file
 
 ```
-CONSUMER_KEY=cshare
-CONSUMER_SECRET=root
-ACCESS_TOKEN=my-secret-pw
-ACCESS_SECRET=localhost
+CONSUMER_KEY=my-api-key
+CONSUMER_SECRET=my-api-secret-key
+ACCESS_TOKEN=my-access-token
+ACCESS_SECRET=my-secret-access-token
 ```
 
-The `CONSUMER_KEY`, `CONSUMER_SECRET`, `ACCESS_TOKEN` and `ACCESS_SECRET` variables must match the corresponding values of the Twitter credentials of the app you have just created. 
+The `CONSUMER_KEY` (API Key), `CONSUMER_SECRET` (API Secret Key), `ACCESS_TOKEN` and `ACCESS_SECRET` variables must match the corresponding values of the Twitter credentials of the app you have just created. 
 
 **Warning, this file should never be pushed on your git repository (neither local nor remote)**
 
