@@ -87,9 +87,9 @@ This app will just be used to collect some tweet related to a specific event in 
 
 ### Setup environment variables
 
-In the `/twitter_collect` package, create a `credentials.py` file that will contain our local variables. The `credentials.py` file should look like this :
+In the `/tweet_collection` package, create a `credentials.py` file that will contain our local variables. The `credentials.py` file should look like this :
 
-`/twitter_collect/credentials.py` file
+`/tweet_collection/credentials.py` file
 
 ```python
 # Twitter App access keys for @grosclara
