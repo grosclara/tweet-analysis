@@ -87,13 +87,18 @@ This app will just be used to collect some tweet related to a specific event in 
 
 ### Setup environment variables
 
-In the root directory `/`, create a `.credentials` file that will contain our local variables. The `.credentials` file should look like this :
+In the root directory `/`, create a `.credentials.py` file that will contain our local variables. The `.credentials.py` file should look like this :
 
-`/.credentials` file
+`/.credentials.py` file
 
 ```
+# Twitter App access keys for @grosclara
+
+#Consume:
 CONSUMER_KEY=my-api-key
 CONSUMER_SECRET=my-api-secret-key
+
+#Access:
 ACCESS_TOKEN=my-access-token
 ACCESS_SECRET=my-secret-access-token
 ```
