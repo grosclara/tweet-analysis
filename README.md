@@ -91,7 +91,7 @@ In the root directory `/`, create a `.credentials.py` file that will contain our
 
 `/.credentials.py` file
 
-```
+```python
 # Twitter App access keys for @grosclara
 
 #Consume:
@@ -110,3 +110,8 @@ The `CONSUMER_KEY` (API Key), `CONSUMER_SECRET` (API Secret Key), `ACCESS_TOKEN`
 ## Run the app
 
 ## Test
+
+To run tests, run the following command:
+```
+pytest
+```
