@@ -24,7 +24,7 @@ This project is based on version 3 of python.
 
 In the root folder `/`, create a vritual environment runnning the command:
 ```
-python -m venv env
+python3 -m venv env
 ```
 
 To activate the virtual environement:
@@ -91,16 +91,16 @@ In the root directory `/`, create a `.credentials.py` file that will contain our
 
 `/.credentials.py` file
 
-```
+```python
 # Twitter App access keys for @grosclara
 
 #Consume:
-CONSUMER_KEY=my-api-key
-CONSUMER_SECRET=my-api-secret-key
+CONSUMER_KEY='my-api-key'
+CONSUMER_SECRET='my-api-secret-key'
 
 #Access:
-ACCESS_TOKEN=my-access-token
-ACCESS_SECRET=my-secret-access-token
+ACCESS_TOKEN='my-access-token'
+ACCESS_SECRET='my-secret-access-token'
 ```
 
 The `CONSUMER_KEY` (API Key), `CONSUMER_SECRET` (API Secret Key), `ACCESS_TOKEN` and `ACCESS_SECRET` variables must match the corresponding values of the Twitter credentials of the app you have just created. 
@@ -109,3 +109,9 @@ The `CONSUMER_KEY` (API Key), `CONSUMER_SECRET` (API Secret Key), `ACCESS_TOKEN`
 
 ## Run the app
 
+## Test
+
+To run tests, run the following command:
+```
+pytest
+```
