@@ -1,7 +1,7 @@
 import tweepy
 from .StreamListener import *
 
-def get_replies_to_candidate(candidate_id, twitter_api, lang="english"):
+def get_replies_to_candidate(candidate_id, twitter_api):
     """
     Given a candidate Twitter id, return for each recent tweet of the given candidate, 
     the re-tweets to this tweet. The information on the original tweet will be kept in the type of return.
