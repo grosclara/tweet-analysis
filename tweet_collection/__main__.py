@@ -1,0 +1,1 @@
+# Programme principal initiant et executant une collecte
