@@ -42,7 +42,7 @@ def get_candidate_tweets(candidate_id, twitter_api):
 
     try :
         # Retrieve the candidate's tweet
-        statuses = twitter_api.user_timeline(id = candidate_id, count = 100)
+        statuses = twitter_api.user_timeline(id = candidate_id, count = 100, tweet_mode='extended')
 
     except tweepy.TweepError as err:
         raise err
@@ -62,7 +62,7 @@ def get_tweets_from_candidates_search_queries(queries, twitter_api, lang="en"):
     query_string = query_string.join(queries)
 
     try :
-        tweets = twitter_api.search(query_string,language=lang,rpp=100)
+        tweets = twitter_api.search(query_string,language=lang,rpp=100, tweet_mode='extended')
 
     except tweepy.TweepError as err:
         raise err
@@ -89,7 +89,7 @@ def get_replies_to_candidate(candidate_id, twitter_api):
                                         since_id=candidate_tweet.id, tweet_mode='extended').items(100):
 
                 if (tweet.in_reply_to_status_id == candidate_tweet.id):
-                    replies.append(tweet.full_text)
+                    replies.append(tweet)
 
     except tweepy.TweepError as err:
         raise err

@@ -19,8 +19,8 @@ def store_tweets_on_disk(tweets, filename):
         {
             "ID":tweet.id, 
             "Date": tweet.created_at.strftime("%m/%d/%Y, %H:%M:%S"), 
-            "Content":tweet.text, 
-            "Length": len(tweet.text),
+            "Content":tweet.full_text, 
+            "Length": len(tweet.full_text),
             #"hashtags": tweet.entities['hashtags'],
             "RTs": tweet.retweet_count,
             "Likes": tweet.favorite_count
@@ -45,8 +45,8 @@ def store_tweets_to_dataframe(tweets):
         {
             "ID":tweet.id, 
             "Date": tweet.created_at.strftime("%m/%d/%Y, %H:%M:%S"), 
-            "Content":tweet.text, 
-            "Length": len(tweet.text),
+            "Content":tweet.full_text, 
+            "Length": len(tweet.full_text),
             #"hashtags": tweet.entities['hashtags'],
             "RTs": tweet.retweet_count,
             "Likes": tweet.favorite_count
