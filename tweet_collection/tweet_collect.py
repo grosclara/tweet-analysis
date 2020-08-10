@@ -1,6 +1,7 @@
 import tweepy
 import json
 from datetime import datetime
+import pandas as pd
 
 def get_candidate_queries(num_candidate, file_path, keyword_type):
     """
@@ -77,7 +78,7 @@ def get_tweets_from_candidates_search_queries(queries, twitter_api, lang="en"):
 
     return tweets
 
-def store_tweets(tweets, filename):
+def store_tweets_on_disk(tweets, filename):
     """
     Serialize in a json file the tweets collected given in parameter
     :param tweets: a list of tweets (SearchResult of Tweepy Status objects)
@@ -101,3 +102,31 @@ def store_tweets(tweets, filename):
 
     with open(filename, "w") as write_file:
         json.dump(tweet_dic, write_file)
+
+def store_tweets_to_dataframe(tweets):
+    """
+    Transform the Tweepy object tweets in a DataFrame and return it
+    :param tweets: a list of tweets (SearchResult of Tweepy Status objects)
+    :return (pd.DataFrame) the DataFrame containing tweets relevant information
+    """
+
+    l = []
+
+    # Convert the SearchResult object to a list and select a few attributes
+    for tweet in tweets:
+        l.append(\
+        {
+            "id":tweet.id, 
+            "date": tweet.created_at.strftime("%m/%d/%Y, %H:%M:%S"), 
+            "text":tweet.text, 
+            "hashtags": tweet.entities['hashtags'],
+            "retweet_count": tweet.retweet_count
+        }
+        )
+
+    df = pd.DataFrame(l)
+
+    df.date = df.date.astype('datetime64[ns]')
+    df.text = df.text.astype('string')
+    
+    return df
