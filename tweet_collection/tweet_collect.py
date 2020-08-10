@@ -32,30 +32,22 @@ def get_candidate_queries(num_candidate, file_path, keyword_type):
     except IOError as err:
         raise err
 
-def get_replies_to_candidate(candidate_id, twitter_api):
+def get_candidate_tweets(candidate_id, twitter_api):
     """
-    Given a candidate Twitter id, return for each recent tweet of the given candidate, 
-    the re-tweets to this tweet. The information on the original tweet will be kept in the type of return.
+    Given a candidate Twitter id, return all the recent tweets of the given candidate.
     :param num_candidate: the candidate number
     :param twitter_api: the connection instance
-    :return: (tuple) a tuple containing the candidate's tweet and a list of the corresponding retweets
+    :return: (SearchResult) a list of the candidate's most recent tweets
     """
-
-    retweets = []
 
     try :
         # Retrieve the candidate's tweet
-        status = twitter_api.user_timeline(id = candidate_id, count = 1)[0]
-
-        # If status is not null, retrieves the correponding retweets
-        if status:
-            retweets = twitter_api.retweets(id = status.id, count = 100)
+        statuses = twitter_api.user_timeline(id = candidate_id, count = 100)
 
     except tweepy.TweepError as err:
-        print(err.response.text)
         raise err
 
-    return (status, retweets)
+    return statuses
 
 def get_tweets_from_candidates_search_queries(queries, twitter_api, lang="en"):
     """
@@ -73,60 +65,6 @@ def get_tweets_from_candidates_search_queries(queries, twitter_api, lang="en"):
         tweets = twitter_api.search(query_string,language=lang,rpp=100)
 
     except tweepy.TweepError as err:
-        print(err.response.text)
         raise err
 
     return tweets
-
-def store_tweets_on_disk(tweets, filename):
-    """
-    Serialize in a json file the tweets collected given in parameter
-    :param tweets: a list of tweets (SearchResult of Tweepy Status objects)
-    :param filename: the name of the file where to serialize data
-    """
-
-    # Convert the SearchResult object to a list and select a few attributes
-    tweet_dic = {}
-    count = 0
-
-    for tweet in tweets:
-        tweet_dic[count] = \
-        {
-            "id":tweet.id, 
-            "date": tweet.created_at.strftime("%m/%d/%Y, %H:%M:%S"), 
-            "text":tweet.text, 
-            "hashtags": tweet.entities['hashtags'],
-            "retweet_count": tweet.retweet_count
-        }
-        count += 1
-
-    with open(filename, "w") as write_file:
-        json.dump(tweet_dic, write_file)
-
-def store_tweets_to_dataframe(tweets):
-    """
-    Transform the Tweepy object tweets in a DataFrame and return it
-    :param tweets: a list of tweets (SearchResult of Tweepy Status objects)
-    :return (pd.DataFrame) the DataFrame containing tweets relevant information
-    """
-
-    l = []
-
-    # Convert the SearchResult object to a list and select a few attributes
-    for tweet in tweets:
-        l.append(\
-        {
-            "id":tweet.id, 
-            "date": tweet.created_at.strftime("%m/%d/%Y, %H:%M:%S"), 
-            "text":tweet.text, 
-            "hashtags": tweet.entities['hashtags'],
-            "retweet_count": tweet.retweet_count
-        }
-        )
-
-    df = pd.DataFrame(l)
-
-    df.date = df.date.astype('datetime64[ns]')
-    df.text = df.text.astype('string')
-    
-    return df
