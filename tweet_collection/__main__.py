@@ -24,4 +24,5 @@ tweets = get_tweets_from_candidates_search_queries(queries, api)
 #get_replies_to_candidate(Biden_ID, api)
 #print(collect_candidate_tweet_activity_by_streaming(twitter_api=api, candidate_id=Biden_ID))
 
-store_tweets(tweets, "./TweetsData/data_{}.json".format(Biden_ID))
+#store_tweets_on disk(tweets, "./TweetsData/data_{}.json".format(Biden_ID))
+print(store_tweets_to_dataframe(tweets))
