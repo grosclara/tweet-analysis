@@ -72,25 +72,27 @@ def get_tweets_from_candidates_search_queries(queries, twitter_api, lang="en"):
 
 def get_replies_to_candidate(candidate_id, twitter_api):
     """
-    Given a candidate Twitter id, return for each recent tweet of the given candidate, 
-    the re-tweets to this tweet. The information on the original tweet will be kept in the type of return.
-    :param num_candidate: the candidate number
+    Given a candidate Twitter id, return every replies to the most recent tweet of the given candidate, 
+    :param candidate_id: the candidate number
     :param twitter_api: the connection instance
-    :return: (tuple) a tuple containing the candidate's tweet and a list of the corresponding retweets
+    :return: (list) a list containing every replies (each element is a string)
     """
 
-    retweets = []
+    replies = []
 
     try :
-        # Retrieve the candidate's tweet
-        status = twitter_api.user_timeline(id = candidate_id, count = 1)[0]
+        for candidate_tweet in tweepy.Cursor(twitter_api.user_timeline,user_id=candidate_id).items(1):
 
-        # If status is not null, retrieves the correponding retweets
-        if status:
-            retweets = twitter_api.retweets(id = status.id, count = 100)
+            username = candidate_tweet.user.screen_name
+
+            for tweet in tweepy.Cursor(twitter_api.search,q='to:{}'.format(username), 
+                                        since_id=candidate_tweet.id, tweet_mode='extended').items(100):
+
+                if (tweet.in_reply_to_status_id == candidate_tweet.id):
+                    replies.append(tweet.full_text)
 
     except tweepy.TweepError as err:
         raise err
 
-    return (status, retweets)
+    return replies
 
