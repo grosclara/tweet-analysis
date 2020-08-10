@@ -3,6 +3,16 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from textblob import TextBlob
+from textblob import Blobber
+import nltk
+nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('wordnet')
+from nltk.corpus import stopwords
+import string
+from nltk.tokenize import word_tokenize
+from nltk.stem.porter import PorterStemmer
+from textblob import Word
 
 def store_tweets_on_disk(tweets, filename):
     """
@@ -104,5 +114,54 @@ def sentimental_analysis_of_tweet_replies(replies):
     df = replies.filter(["Likes"])
     df['Polarity'] = replies['Content'].map(lambda x: TextBlob(x).sentiment.polarity)
     df['Subjectivity'] = replies['Content'].map(lambda x: TextBlob(x).sentiment.subjectivity)
-    
+
     return df
+
+def wordcloud(tweets):
+    """
+    Return a new dataframe containing word and their frequency after having removed stop words
+    :param tweets: a list (SearchResult object) of tweets (Tweepy Status objects)
+    :return (pd.DataFrame) the DataFrame containing the relevant words and their frequency
+    """
+
+    words = ''
+    textual_content = tweets.Content.to_list()
+    for tweet in textual_content:
+        for word in tweet.split(' '):
+            words += ' '+word
+
+    words = TextBlob(clean_tweets(words))
+
+    word = np.array(list(words.word_counts.keys()))
+    frequency = np.array(list(words.word_counts.values()))
+
+    df = pd.DataFrame({'Word':word, 'Frequency':frequency}).sort_values("Frequency", ascending=False)
+    return df
+
+def clean_tweets(tweet_words):
+    """
+    Clean a string of words by removing punctuation, stopwords and unrelevant words
+    :param words: a string of words to clean
+    :return (str) a text with relevant words only
+    """
+
+    # Split into words
+    tokens = word_tokenize(tweet_words)
+    # Convert to lower case
+    tokens = [w.lower() for w in tokens]
+    # Remove punctuation from each word
+    table = str.maketrans('', '', string.punctuation)
+    stripped = [w.translate(table) for w in tokens]
+    # Remove remaining tokens that are not alphabetic
+    words = [word for word in stripped if word.isalpha()]
+    # Filter out stop words
+    stop_words = set(stopwords.words('english'))
+    words = [w for w in words if not w in stop_words]
+
+    text = ''
+    for w in words:
+        if w not in ['rt', 'http','https']:
+            text += ' '+Word(w).lemmatize()
+
+    return text
+
