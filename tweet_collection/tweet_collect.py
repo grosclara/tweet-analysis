@@ -75,13 +75,13 @@ def get_replies_to_candidate(candidate_id, twitter_api):
     Given a candidate Twitter id, return every replies to the most recent tweet of the given candidate, 
     :param candidate_id: the candidate number
     :param twitter_api: the connection instance
-    :return: (list) a list containing every replies (each element is a string)
+    :return: (tuple) 1. (list) (Status) original tweet - 2. (list) a list containing every replies (Status objects)
     """
 
     replies = []
 
     try :
-        for candidate_tweet in tweepy.Cursor(twitter_api.user_timeline,user_id=candidate_id).items(1):
+        for candidate_tweet in tweepy.Cursor(twitter_api.user_timeline,user_id=candidate_id, tweet_mode="extended").items(1):
 
             username = candidate_tweet.user.screen_name
 
@@ -94,5 +94,5 @@ def get_replies_to_candidate(candidate_id, twitter_api):
     except tweepy.TweepError as err:
         raise err
 
-    return replies
+    return ([candidate_tweet], replies)
 

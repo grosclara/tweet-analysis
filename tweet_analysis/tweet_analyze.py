@@ -2,6 +2,7 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from textblob import TextBlob
 
 def store_tweets_on_disk(tweets, filename):
     """
@@ -74,13 +75,14 @@ def get_the_most_retweeted_tweet(tweets):
     rt  = tweets[tweets.RTs == rt_max]#.index[0] 
     # Max RTs:
     #print("The tweet with more retweets is: \n{}".format(tweets['Content'][rt]))
-    #print("Number of retweets: {}".format(rt_max))
+    #print("Number of retweets: {}".tweet_mode=extendedormat(rt_max))
     #print("{} characters.\n".format(tweets['Length'][rt])) """
     return rt_max
 
 def visualize_tweets_time_evolution(tweets):
     """
-    Plot RTs and Likes as time functions
+    Return a new dataframe indexed by the date containing RTs and Likes
+    Optionnally plot RTs and Likes as time functions
     :param tweets: a list of tweets (SearchResult of Tweepy Status objects)
     :return (pd.DataFrame) the DataFrame containing the most retweeted tweets 
     """
@@ -91,3 +93,16 @@ def visualize_tweets_time_evolution(tweets):
     #plt.show()
 
     return new
+
+def sentimental_analysis_of_tweet_replies(replies):
+    """
+    Return a new dataframe indexed by the date containing Likes, Polarity and Subjectivity indicators
+    :param replies: a list of tweets (Tweepy Status objects)
+    :return (pd.DataFrame) the DataFrame containing the tweets and their sentimental analysis
+    """
+
+    df = replies.filter(["Likes"])
+    df['Polarity'] = replies['Content'].map(lambda x: TextBlob(x).sentiment.polarity)
+    df['Subjectivity'] = replies['Content'].map(lambda x: TextBlob(x).sentiment.subjectivity)
+    
+    return df
