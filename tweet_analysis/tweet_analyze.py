@@ -86,6 +86,8 @@ def visualize_tweets_time_evolution(tweets):
     """
 
     new = tweets.set_index("Date").filter(['RTs','Likes'], axis=1)
-     # Likes vs retweets visualization:
-    new.plot()
-    plt.show()
+    # Likes vs retweets visualization:
+    #new.plot()
+    #plt.show()
+
+    return new
