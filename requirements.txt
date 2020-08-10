@@ -4,3 +4,4 @@ pandas
 numpy
 matplotlib
 textblob
+dash
