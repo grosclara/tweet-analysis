@@ -1,10 +1,7 @@
 # Main program initiating and executing a collection of tweets
 
-from .get_queries import *
-from .collect_candidate_actuality_tweets import *
-from .collect_candidate_tweet_activity import *
+from .tweet_collect import *
 from .twitter_connection_setup import *
-from .tweets_storage import *
 
 # Example
 file_path = "./CandidateData/"
@@ -27,4 +24,4 @@ tweets = get_tweets_from_candidates_search_queries(queries, api)
 #get_replies_to_candidate(Biden_ID, api)
 #print(collect_candidate_tweet_activity_by_streaming(twitter_api=api, candidate_id=Biden_ID))
 
-store_tweets(tweets, "./TweetsSerialized/tweet_activity_{}.json".format(Biden_ID))
+store_tweets(tweets, "./TweetsData/data_{}.json".format(Biden_ID))
