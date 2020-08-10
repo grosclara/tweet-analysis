@@ -117,7 +117,7 @@ def sentimental_analysis_of_tweet_replies(replies):
 
     return df
 
-def wordcloud(tweets):
+def get_most_frequently_used_words(tweets):
     """
     Return a new dataframe containing word and their frequency after having removed stop words
     :param tweets: a list (SearchResult object) of tweets (Tweepy Status objects)
