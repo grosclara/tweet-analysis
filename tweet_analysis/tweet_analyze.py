@@ -103,7 +103,7 @@ def get_the_most_retweeted_tweet(tweets):
     """
 
     rt_max  = np.max(tweets['RTs'])
-    rt  = tweets[tweets.RTs == rt_max]#.index[0] 
+    rt  = tweets[tweets.RTs == rt_max].squeeze()
     # Max RTs:
     #print("The tweet with more retweets is: \n{}".format(tweets['Content'][rt]))
     #print("Number of retweets: {}".tweet_mode=extendedormat(rt_max))
