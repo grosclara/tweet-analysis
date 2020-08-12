@@ -7,35 +7,20 @@ import base64
 import datetime
 import io
 import plotly.graph_objs as go
-
+import re
 import dash
 from dash.dependencies import Input, Output, State
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_table
-
-import pandas as pd
+from tweet_collection.tweet_collect import *
+from tweet_collection.twitter_connection_setup import *
+from tweet_analysis.tweet_analyze import *
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 server = app.server
-
-# Multi-dropdown options
-from controls import COUNTIES, WELL_STATUSES, WELL_TYPES, WELL_COLORS
-
-# Create controls
-county_options = [{'label': str(COUNTIES[county]), 'value': str(county)}
-                  for county in COUNTIES]
-
-well_status_options = [{'label': str(WELL_STATUSES[well_status]),
-                        'value': str(well_status)}
-                       for well_status in WELL_STATUSES]
-
-well_type_options = [{'label': str(WELL_TYPES[well_type]),
-                      'value': str(well_type)}
-                     for well_type in WELL_TYPES]
-
 
 # Create global chart template
 mapbox_access_token = 'pk.eyJ1IjoiamFja2x1byIsImEiOiJjajNlcnh3MzEwMHZtMzNueGw3NWw5ZXF5In0.fk8k06T96Ml9CLGgKmk81w'
@@ -64,31 +49,6 @@ layout = dict(
         zoom=7,
     )
 )
-
-
-""" app.layout = html.Div([
-    dcc.Upload(
-        id='upload-data',
-        children=html.Div([
-            'Drag and Drop or ',
-            html.A('Select Files')
-        ]),
-        style={
-            'width': '100%',
-            'height': '60px',
-            'lineHeight': '60px',
-            'borderWidth': '1px',
-            'borderStyle': 'dashed',
-            'borderRadius': '5px',
-            'textAlign': 'center',
-            'margin': '10px'
-        },
-        # Allow multiple files to be uploaded
-        multiple=True
-    ),
-    dcc.Graph(id='Mygraph'),
-    html.Div(id='output-data-upload')
-]) """
 
 # Create app layout
 app.layout = html.Div(
@@ -129,6 +89,7 @@ app.layout = html.Div(
             [
                 html.Div(
                     [
+                        dcc.Markdown(children='You must upload two files named *hashtags\_candidate\_{ID}.txt* and *keywords\_candidate\_{ID}.txt* where the ID is the candidate\'s TwitterID'),
                         dcc.Upload(
                             id='upload-data',
                             children=html.Div([
@@ -154,13 +115,70 @@ app.layout = html.Div(
                     [
                         html.Div(
                             [
-                                dcc.Graph(id='candidate_info')
+                                html.Img(
+                                    #Link to candidate profile pic
+                                    src="https://seeklogo.com/vector-logo/274043/twitter",
+                                    id="profile_picture"
+                                ),
+                                dcc.Markdown(
+                                    # Screen Name
+                                    children='Screen name',
+                                    id="screen_name"
+                                ),
+                                dcc.Markdown(
+                                    # Name starting with @
+                                    children='Name',
+                                    id="name"
+                                ),
+                                dcc.Markdown(
+                                    # Description
+                                    children='Status',
+                                    id="description"
+                                ),
+                                dcc.Markdown(
+                                    # Number of followers
+                                    children='Followers Count',
+                                    id="followers_count"
+                                ),
+                                html.A(
+                                    children="URL profile",
+                                    href="https://gitlab.com/grosclara/twitterpredictor",
+                                    #className="two columns",
+                                    id="link_to_profile"
+                                )
                             ],
                             className='pretty_container four columns',
+                            id='candidate_info'
                         ),
-                        html.Div(
+                        html.Div(# Max RTs:
+    #print("The tweet with more retweets is: \n{}".format(tweets['Content'][rt]))
+    #print("Number of retweets: {}".tweet_mode=extendedormat(rt_max))
+    #print("{} characters.\n".format(tweets['Length'][rt])) """
                             [
-                                dcc.Graph(id='most_retweeted_tweet')
+                                dcc.Markdown(
+                                    # Number of followers
+                                    children='The tweet with more retweets is:',
+                                ),
+                                dcc.Markdown(
+                                    # Content
+                                    children='Content',
+                                    id="most_retweeted_tweet_content"
+                                ),
+                                dcc.Markdown(
+                                    # Date
+                                    children='Date',
+                                    id="most_retweeted_tweet_date"
+                                ),
+                                dcc.Markdown(
+                                    # Number of followers
+                                    children='RT',
+                                    id="retweet_count"
+                                                ),
+                                dcc.Markdown(
+                                    # Number of followers
+                                    children='Likes',
+                                    id="favorite_count"
+                                )
                             ],
                             className='pretty_container four columns',
                         ),
@@ -212,85 +230,115 @@ app.layout = html.Div(
     }
 )
 
+@app.callback(
+    [
+        Output('profile_picture', 'src'),
+        Output('screen_name', 'children'),
+        Output('name', 'children'),
+        Output('description', 'children'),
+        Output('followers_count','children'),
+        Output('link_to_profile','href'),
+        Output('most_retweeted_tweet_content','children'),
+        Output('most_retweeted_tweet_date','children'),
+        Output('retweet_count','children'),
+        Output('favorite_count', 'children')
+    ],
+    [
+        Input('upload-data', 'filename'),
+        Input('upload-data', 'contents')
+    ])
+def update_output(uploaded_filenames, uploaded_file_contents):
+    """
+    Save uploaded files and update the dashboard
+    """
 
-def parse_data(contents, filename):
-    content_type, content_string = contents.split(',')
+    # Check file names format and save information
+    data = verify_file_upload(uploaded_file_contents, uploaded_filenames)
+    # Save files in the CandidateData directory
+    for name, content in zip(uploaded_filenames, uploaded_file_contents):
+        save_file(name, content)
 
-    decoded = base64.b64decode(content_string)
+    # Launch a connexion to the Twitter API
+    api = twitter_setup()
+
+    # Retrieve user profile information
+    df_user = update_candidate_profile(api, data)
+    df_tweet = update_most_retweeted_tweet(api, data)
+    
+    return df_user.profile_image_url, \
+            '@'+df_user.screen_name, \
+            df_user.username, \
+            df_user.description, \
+            str(df_user.followers_count)+' followers',\
+            df_user.url, \
+            df_tweet.Content, \
+            'Created at: '+str(df_tweet.Date), \
+            str(df_tweet.RTs)+'RTs', \
+            str(df_tweet.Likes)+'Likes'
+            
+
+def verify_file_upload(contents, filenames):
+    """
+    Assert filenames are well formatted and return a dictionary containing the candidate number as well as each file labeled according to its keyword type
+    :param : contents
+    :param : filenames
+    :return : (dic) {'candidate_num': 4864, 'keywords':filename1, 'hashtags': filename2}
+    """
+
+    assert contents is not None
+    assert filenames is not None
+
+    # Assert exactly 2 file were uploaded
+    assert len(contents) == 2
+    assert len(filenames) == 2
+
+    # Assert the filename matches the regex
+    default_file_name = r'(hashtags|keywords)_candidate_\d*\.txt'
+    for name in filenames:
+        assert re.match(default_file_name, name)
+
+    # Assert the candidate numbers are the same in both files    
+    num_candidate_1 = re.findall(r"[0-9]+", filenames[0])[0]
+    num_candidate_2 = re.findall(r"[0-9]+", filenames[1])[0]
+    assert num_candidate_1 == num_candidate_2
+
+    # Assert the keywords type are different in both files    
+    keyword_type_1 = re.findall(r"(keywords|hashtags)", filenames[0])[0]
+    keyword_type_2 = re.findall(r"(keywords|hashtags)", filenames[1])[0]
+    assert keyword_type_1 != keyword_type_2
+
+    files = {}
+    files['num_candidate'] = num_candidate_1
+    if re.findall(r"(keywords|hashtags)", filenames[0])[0] == 'keywords':
+        files['keywords'] = 'CandidateData/'+filenames[0]
+        files['hashtags'] = 'CandidateData/'+filenames[1]
+    else:
+        files['hashtags'] = 'CandidateData/'+filenames[0]
+        files['keywords'] = 'CandidateData/'+filenames[1]
+
+    return files
+
+def update_candidate_profile(api, data):
+    user = get_candidate_info(api, data["num_candidate"])
+    df_user = store_user_to_dataframe(user)
+    return df_user
+
+def update_most_retweeted_tweet(api, data):
+    tweets = get_candidate_tweets(data['num_candidate'], api)
+    tweets_df = store_tweets_to_dataframe(tweets)
+    max_rt_tweet = get_the_most_retweeted_tweet(tweets_df) 
+    print(max_rt_tweet)
+    return max_rt_tweet
+
+def save_file(name, content):
+    """Decode and store a file uploaded with Plotly Dash."""
+    data = content.encode("utf8").split(b";base64,")[1]
+
     try:
-        if 'csv' in filename:
-            # Assume that the user uploaded a CSV or TXT file
-            df = pd.read_csv(
-                io.StringIO(decoded.decode('utf-8')))
-        elif 'xls' in filename:
-            # Assume that the user uploaded an excel file
-            df = pd.read_excel(io.BytesIO(decoded))
-        elif 'txt' or 'tsv' in filename:
-            # Assume that the user upl, delimiter = r'\s+'oaded an excel file
-            df = pd.read_csv(
-                io.StringIO(decoded.decode('utf-8')), delimiter = r'\s+')
-    except Exception as e:
-        print(e)
-        return html.Div([
-            'There was an error processing this file.'
-        ])
-
-    return df
-
-
-@app.callback(Output('Mygraph', 'figure'),
-            [
-                Input('upload-data', 'contents'),
-                Input('upload-data', 'filename')
-            ])
-def update_graph(contents, filename):
-    fig = {
-        'layout': go.Layout(
-            plot_bgcolor=colors["graphBackground"],
-            paper_bgcolor=colors["graphBackground"])
-    }
-
-    if contents:
-        contents = contents[0]
-        filename = filename[0]
-        df = parse_data(contents, filename)
-        df = df.set_index(df.columns[0])
-        fig['data'] = df.iplot(asFigure=True, kind='scatter', mode='lines+markers', size=1)
-
-
-    return fig
-
-@app.callback(Output('output-data-upload', 'children'),
-            [
-                Input('upload-data', 'contents'),
-                Input('upload-data', 'filename')
-            ])
-def update_table(contents, filename):
-    table = html.Div()
-
-    if contents:
-        contents = contents[0]
-        filename = filename[0]
-        df = parse_data(contents, filename)
-
-        table = html.Div([
-            html.H5(filename),
-            dash_table.DataTable(
-                data=df.to_dict('rows'),
-                columns=[{'name': i, 'id': i} for i in df.columns]
-            ),
-            html.Hr(),
-            html.Div('Raw Content'),
-            html.Pre(contents[0:200] + '...', style={
-                'whiteSpace': 'pre-wrap',
-                'wordBreak': 'break-all'
-            })
-        ])
-
-    return table
-
-
-
+        with open('CandidateData/'+name, "wb") as fp:
+            fp.write(base64.decodebytes(data))
+    except OSError as err: 
+        raise(err)
 
 if __name__ == '__main__':
     app.run_server(debug=True)
