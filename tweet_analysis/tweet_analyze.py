@@ -83,7 +83,7 @@ def store_user_to_dataframe(user):
 
     l = {
         "ID":user.id,
-        "name": user.name,
+        "username": user.name,
         "screen_name": user.screen_name,
         "description": user.description,
         "url": user.url,
@@ -98,8 +98,8 @@ def store_user_to_dataframe(user):
 def get_the_most_retweeted_tweet(tweets):
     """
     Return the most retweeted tweet
-    :param tweets: a list of tweets (SearchResult of Tweepy Status objects)
-    :return (pd.DataFrame) the DataFrame containing the most retweeted tweets 
+    :param tweets: a dataframe of tweets
+    :return (pd.DataFrame) the dataframe containing the most retweeted tweet
     """
 
     rt_max  = np.max(tweets['RTs'])
@@ -108,7 +108,7 @@ def get_the_most_retweeted_tweet(tweets):
     #print("The tweet with more retweets is: \n{}".format(tweets['Content'][rt]))
     #print("Number of retweets: {}".tweet_mode=extendedormat(rt_max))
     #print("{} characters.\n".format(tweets['Length'][rt])) """
-    return rt_max
+    return rt
 
 def visualize_tweets_time_evolution(tweets):
     """
