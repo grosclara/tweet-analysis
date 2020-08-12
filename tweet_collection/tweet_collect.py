@@ -32,6 +32,24 @@ def get_candidate_queries(num_candidate, file_path, keyword_type):
     except IOError as err:
         raise err
 
+def get_candidate_info(twitter_api, candidate_id):
+    """
+    Given a candidate Twitter id, return all its profile information.
+    :param num_candidate: the candidate number
+    :param twitter_api: the connection instance
+    :return: (User) a tweepy User object containig the relevant information
+    """
+
+    try :
+        # Retrieve the candidate's tweet
+        profile_details = twitter_api.get_user(user_id=str(candidate_id))
+    except tweepy.TweepError as err:
+        raise err
+
+    return profile_details
+
+
+
 def get_candidate_tweets(candidate_id, twitter_api):
     """
     Given a candidate Twitter id, return all the recent tweets of the given candidate.

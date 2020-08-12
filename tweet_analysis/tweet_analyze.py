@@ -74,6 +74,27 @@ def store_tweets_to_dataframe(tweets):
 
     return df
 
+def store_user_to_dataframe(user):
+    """
+    Transform the Tweepy object user in a Serie and return it
+    :param user: a Tweepy User object
+    :return (pd.Series) the Serie containing the relevant information
+    """
+
+    l = {
+        "ID":user.id,
+        "name": user.name,
+        "screen_name": user.screen_name,
+        "description": user.description,
+        "url": user.url,
+        "followers_count": user.followers_count,
+        "profile_image_url": user.profile_image_url
+    }
+
+    df = pd.Series(l)
+
+    return df
+
 def get_the_most_retweeted_tweet(tweets):
     """
     Return the most retweeted tweet
