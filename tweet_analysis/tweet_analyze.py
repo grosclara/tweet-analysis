@@ -2,6 +2,7 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
 from textblob import TextBlob
 from textblob import Blobber
 import nltk
@@ -13,6 +14,7 @@ import string
 from nltk.tokenize import word_tokenize
 from nltk.stem.porter import PorterStemmer
 from textblob import Word
+from wordcloud import WordCloud
 
 def store_tweets_on_disk(tweets, filename):
     """
@@ -138,7 +140,7 @@ def sentimental_analysis_of_tweet_replies(replies):
 
     return df
 
-def get_most_frequently_used_words(tweets):
+def get_most_frequently_used_words(candidate_num, tweets):
     """
     Return a new dataframe containing word and their frequency after having removed stop words
     :param tweets: a list (SearchResult object) of tweets (Tweepy Status objects)
@@ -153,11 +155,21 @@ def get_most_frequently_used_words(tweets):
 
     words = TextBlob(clean_tweets(words))
 
-    word = np.array(list(words.word_counts.keys()))
-    frequency = np.array(list(words.word_counts.values()))
+    wc = WordCloud(background_color="black", max_words=1000)
+    # generate word cloud
+    wc.generate_from_frequencies(words.word_counts)
 
-    df = pd.DataFrame({'Word':word, 'Frequency':frequency}).sort_values("Frequency", ascending=False)
-    return df
+    filepath = './images/wordcloud_{}.png'.format(candidate_num)
+
+    # save
+    fig = plt.figure()
+    plt.imshow(wc, interpolation="bilinear")
+    plt.axis("off")
+    fig.savefig(filepath)
+
+    return filepath
+
+
 
 def clean_tweets(tweet_words):
     """
@@ -185,4 +197,16 @@ def clean_tweets(tweet_words):
             text += ' '+Word(w).lemmatize()
 
     return text
+
+def getFrequencyDictForText(text):
+    fullTermsDict = multidict.MultiDict()
+    tmpDict = {}
+
+    # making dict for counting frequencies
+    for word in text:
+        val = tmpDict.get(word, 0)
+        tmpDict[word] = val + 1
+    for key in tmpDict:
+        fullTermsDict.add(key, tmpDict[key])
+    return fullTermsDict
 

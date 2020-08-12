@@ -6,3 +6,4 @@ matplotlib
 textblob
 dash
 regex
+wordcloud
