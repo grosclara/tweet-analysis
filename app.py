@@ -243,7 +243,8 @@ app.layout = html.Div(
         Output('most_retweeted_tweet_date','children'),
         Output('retweet_count','children'),
         Output('favorite_count', 'children'),
-        Output('wordcloud','src')
+        Output('wordcloud','src'),
+        Output('statistics_graph', 'figure')
     ],
     [
         Input('upload-data', 'filename'),
@@ -268,6 +269,8 @@ def update_output(uploaded_filenames, uploaded_file_contents):
     df_tweet = update_most_retweeted_tweet(api, data)
     
     wordcloud = generate_wordcloud(api, data)
+
+    fig_stats = update_rt_stats(api, data)
     
     return df_user.profile_image_url, \
             '@'+df_user.screen_name, \
@@ -279,7 +282,8 @@ def update_output(uploaded_filenames, uploaded_file_contents):
             'Created at: '+str(df_tweet.Date), \
             str(df_tweet.RTs)+'RTs', \
             str(df_tweet.Likes)+'Likes', \
-            wordcloud            
+            wordcloud, \
+            fig_stats       
             
 
 def verify_file_upload(contents, filenames):
@@ -326,6 +330,12 @@ def generate_wordcloud(api, data):
     # Encode the image
     encoded_wordcloud = base64.b64encode(open(wordcloud_path, 'rb').read()).decode('ascii')
     return 'data:image/png;base64,{}'.format(encoded_wordcloud)
+
+def update_rt_stats(api, data):
+    tweets_candidate = get_candidate_tweets(data["num_candidate"], api)
+    tweets_candidate_df = store_tweets_to_dataframe(tweets_candidate)
+    fig = visualize_tweets_time_evolution(tweets_candidate_df)
+    return fig
 
 def save_file(name, content):
     """Decode and store a file uploaded with Plotly Dash."""

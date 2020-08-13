@@ -15,6 +15,8 @@ from nltk.tokenize import word_tokenize
 from nltk.stem.porter import PorterStemmer
 from textblob import Word
 from wordcloud import WordCloud
+# Using plotly.express
+import plotly.express as px
 
 def store_tweets_on_disk(tweets, filename):
     """
@@ -120,12 +122,13 @@ def visualize_tweets_time_evolution(tweets):
     :return (pd.DataFrame) the DataFrame containing the most retweeted tweets 
     """
 
-    new = tweets.set_index("Date").filter(['RTs','Likes'], axis=1)
-    # Likes vs retweets visualization:
-    #new.plot()
-    #plt.show()
 
-    return new
+    fig = px.line(tweets, x='Date', y=['RTs','Likes'], \
+                    labels={ "value": "Counts" ,
+                            'variable': 'Legend'},
+                    title="Time evolution of the Candidat's tweets"
+                )
+    return fig
 
 def sentimental_analysis_of_tweet_replies(replies):
     """
