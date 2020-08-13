@@ -89,7 +89,7 @@ app.layout = html.Div(
             [
                 html.Div(
                     [
-                        dcc.Markdown(children='You must upload two files named *hashtags\_candidate\_{ID}.txt* and *keywords\_candidate\_{ID}.txt* where the ID is the candidate\'s TwitterID'),
+                        dcc.Markdown(children='You must upload one file containing hashtags separated by commas and named *hashtags\_candidate\_{ID}.txt* where the ID is the candidate\'s TwitterID'),
                         dcc.Upload(
                             id='upload-data',
                             children=html.Div([
@@ -107,7 +107,7 @@ app.layout = html.Div(
                                 'margin': '10px'
                             },
                             # Allow multiple files to be uploaded
-                            multiple=True
+                            multiple=False
                         ),
                     ]
                 ),
@@ -150,10 +150,7 @@ app.layout = html.Div(
                             className='pretty_container four columns',
                             id='candidate_info'
                         ),
-                        html.Div(# Max RTs:
-    #print("The tweet with more retweets is: \n{}".format(tweets['Content'][rt]))
-    #print("Number of retweets: {}".tweet_mode=extendedormat(rt_max))
-    #print("{} characters.\n".format(tweets['Length'][rt])) """
+                        html.Div(
                             [
                                 dcc.Markdown(
                                     # Number of followers
@@ -184,10 +181,14 @@ app.layout = html.Div(
                         ),
                         html.Div(
                             [
-                                dcc.Graph(id='wordcloud')
+                                html.Img(
+                                    #Link to wordcloud
+                                    src="https://seeklogo.com/vector-logo/274043/twitter",
+                                    id="wordcloud"
+                                )
                             ],
-                            className='pretty_container four columns',
-                        ),
+                            className='pretty_container four columns', 
+                        )
                     ],
                     className='row'
                 ),
@@ -241,7 +242,8 @@ app.layout = html.Div(
         Output('most_retweeted_tweet_content','children'),
         Output('most_retweeted_tweet_date','children'),
         Output('retweet_count','children'),
-        Output('favorite_count', 'children')
+        Output('favorite_count', 'children'),
+        Output('wordcloud','src')
     ],
     [
         Input('upload-data', 'filename'),
@@ -255,15 +257,17 @@ def update_output(uploaded_filenames, uploaded_file_contents):
     # Check file names format and save information
     data = verify_file_upload(uploaded_file_contents, uploaded_filenames)
     # Save files in the CandidateData directory
-    for name, content in zip(uploaded_filenames, uploaded_file_contents):
-        save_file(name, content)
+    save_file(uploaded_filenames, uploaded_file_contents)
 
     # Launch a connexion to the Twitter API
     api = twitter_setup()
 
     # Retrieve user profile information
     df_user = update_candidate_profile(api, data)
+    
     df_tweet = update_most_retweeted_tweet(api, data)
+    
+    wordcloud = generate_wordcloud(api, data)
     
     return df_user.profile_image_url, \
             '@'+df_user.screen_name, \
@@ -274,7 +278,8 @@ def update_output(uploaded_filenames, uploaded_file_contents):
             df_tweet.Content, \
             'Created at: '+str(df_tweet.Date), \
             str(df_tweet.RTs)+'RTs', \
-            str(df_tweet.Likes)+'Likes'
+            str(df_tweet.Likes)+'Likes', \
+            wordcloud            
             
 
 def verify_file_upload(contents, filenames):
@@ -288,33 +293,15 @@ def verify_file_upload(contents, filenames):
     assert contents is not None
     assert filenames is not None
 
-    # Assert exactly 2 file were uploaded
-    assert len(contents) == 2
-    assert len(filenames) == 2
-
     # Assert the filename matches the regex
-    default_file_name = r'(hashtags|keywords)_candidate_\d*\.txt'
-    for name in filenames:
-        assert re.match(default_file_name, name)
-
-    # Assert the candidate numbers are the same in both files    
-    num_candidate_1 = re.findall(r"[0-9]+", filenames[0])[0]
-    num_candidate_2 = re.findall(r"[0-9]+", filenames[1])[0]
-    assert num_candidate_1 == num_candidate_2
-
-    # Assert the keywords type are different in both files    
-    keyword_type_1 = re.findall(r"(keywords|hashtags)", filenames[0])[0]
-    keyword_type_2 = re.findall(r"(keywords|hashtags)", filenames[1])[0]
-    assert keyword_type_1 != keyword_type_2
+    default_file_name = r'hashtags_candidate_\d*\.txt'
+    assert re.match(default_file_name, filenames)
+  
+    num_candidate = re.findall(r"[0-9]+", filenames)[0]
 
     files = {}
-    files['num_candidate'] = num_candidate_1
-    if re.findall(r"(keywords|hashtags)", filenames[0])[0] == 'keywords':
-        files['keywords'] = 'CandidateData/'+filenames[0]
-        files['hashtags'] = 'CandidateData/'+filenames[1]
-    else:
-        files['hashtags'] = 'CandidateData/'+filenames[0]
-        files['keywords'] = 'CandidateData/'+filenames[1]
+    files['num_candidate'] = num_candidate
+    files['filepath'] = 'CandidateData/'+filenames
 
     return files
 
@@ -327,8 +314,18 @@ def update_most_retweeted_tweet(api, data):
     tweets = get_candidate_tweets(data['num_candidate'], api)
     tweets_df = store_tweets_to_dataframe(tweets)
     max_rt_tweet = get_the_most_retweeted_tweet(tweets_df) 
-    print(max_rt_tweet)
     return max_rt_tweet
+
+def generate_wordcloud(api, data):
+
+    queries = get_candidate_queries(int(data["num_candidate"]), data["filepath"])
+    tweets_query = get_tweets_from_candidates_search_queries(queries, api)
+    tweets_query_df = store_tweets_to_dataframe(tweets_query)
+    wordcloud_path = get_most_frequently_used_words(int(data["num_candidate"]), tweets_query_df)
+
+    # Encode the image
+    encoded_wordcloud = base64.b64encode(open(wordcloud_path, 'rb').read()).decode('ascii')
+    return 'data:image/png;base64,{}'.format(encoded_wordcloud)
 
 def save_file(name, content):
     """Decode and store a file uploaded with Plotly Dash."""
