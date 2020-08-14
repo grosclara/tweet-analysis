@@ -46,8 +46,6 @@ def get_candidate_info(twitter_api, candidate_id):
 
     return profile_details
 
-
-
 def get_candidate_tweets(candidate_id, twitter_api):
     """
     Given a candidate Twitter id, return all the recent tweets of the given candidate.
@@ -78,7 +76,7 @@ def get_tweets_from_candidates_search_queries(queries, twitter_api, lang="en"):
     query_string = query_string.join(queries)
 
     try :
-        tweets = twitter_api.search(query_string,language=lang,rpp=100, tweet_mode='extended')
+        tweets = twitter_api.search(query_string,language=lang, result_type='popular', rpp=100, tweet_mode='extended')
 
     except tweepy.TweepError as err:
         raise err
@@ -88,27 +86,41 @@ def get_tweets_from_candidates_search_queries(queries, twitter_api, lang="en"):
 
 def get_replies_to_candidate(candidate_id, twitter_api):
     """
-    Given a candidate Twitter id, return every replies to the most recent tweet of the given candidate, 
+    Given a candidate Twitter id, return most popular replies to the given candidate's tweets 
     :param candidate_id: the candidate number
     :param twitter_api: the connection instance
-    :return: (tuple) 1. (list) (Status) original tweet - 2. (list) a list containing every replies (Status objects)
+    :return: (list) a list containing every popular replies (Status objects)
     """
 
-    replies = []
+    profile = get_candidate_info(twitter_api, candidate_id)
+    user_name = "@"+profile.screen_name
 
-    try :
-        for candidate_tweet in tweepy.Cursor(twitter_api.user_timeline,user_id=candidate_id, tweet_mode="extended").items(1):
+    popular_replies = []
 
-            username = candidate_tweet.user.screen_name
+    replies = tweepy.Cursor(twitter_api.search, q='to:{} filter:replies'.format(user_name), result_type='popular', tweet_mode='extended').items()
+    while True:
+        try:
+            reply = replies.next()
+            if not hasattr(reply, 'in_reply_to_user_id_str'):
+                continue
+            else:
+                if reply.in_reply_to_user_id == candidate_id :
+                    popular_replies.append(reply)
+        
+        except tweepy.RateLimitError as e:
+            #logging.error("Twitter api rate limit reached".format(e))
+            #time.sleep(60)
+            continue
 
-            for tweet in tweepy.Cursor(twitter_api.search,q='to:{}'.format(username), 
-                                        since_id=candidate_tweet.id, tweet_mode='extended').items(100):
+        except tweepy.TweepError as e:
+            #logging.error("Tweepy error occured:{}".format(e))
+            break
 
-                if (tweet.in_reply_to_status_id == candidate_tweet.id):
-                    replies.append(tweet)
+        except StopIteration:
+            break
 
-    except tweepy.TweepError as err:
-        raise err
-
-    return ([candidate_tweet], replies)
-
+        except Exception as e:
+            #logger.error("Failed while fetching replies {}".format(e))
+            break
+    
+    return popular_replies

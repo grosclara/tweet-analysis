@@ -17,6 +17,7 @@ from textblob import Word
 from wordcloud import WordCloud
 # Using plotly.express
 import plotly.express as px
+import plotly.graph_objects as go
 
 def store_tweets_on_disk(tweets, filename):
     """
@@ -126,7 +127,7 @@ def visualize_tweets_time_evolution(tweets):
     fig = px.line(tweets, x='Date', y=['RTs','Likes'], \
                     labels={ "value": "Counts" ,
                             'variable': 'Legend'},
-                    title="Time evolution of the Candidat's tweets"
+                    title="Time evolution of the candidate's tweets"
                 )
     return fig
 
@@ -137,11 +138,68 @@ def sentimental_analysis_of_tweet_replies(replies):
     :return (pd.DataFrame) the DataFrame containing the tweets and their sentimental analysis
     """
 
-    df = replies.filter(["Likes"])
-    df['Polarity'] = replies['Content'].map(lambda x: TextBlob(x).sentiment.polarity)
-    df['Subjectivity'] = replies['Content'].map(lambda x: TextBlob(x).sentiment.subjectivity)
+    # Load data
+    replies['Polarity'] = replies['Content'].map(lambda x: TextBlob(x).sentiment.polarity)
+    replies['Subjectivity'] = replies['Content'].map(lambda x: TextBlob(x).sentiment.subjectivity)
 
-    return df
+    hover_text = []
+    bubble_size = []
+
+    for index, row in replies.iterrows():
+        hover_text.append(('Date: {date}<br>'+
+                        'Content: {content}<br>'+
+                        'Length: {len}<br>'+
+                        'RTs: {rts}<br>'+
+                        'Likes: {likes}<br>'+
+                        'Polarity: {polarity}<br>'+
+                        'Subjectivity: {subj}<br>').format(date=row['Date'],
+                                                content=row['Content'],
+                                                len=row['Length'],
+                                                rts=row['RTs'],
+                                                likes=row['Likes'],
+                                                polarity=row['Polarity'],
+                                                subj = row['Subjectivity']))
+    
+        bubble_size.append(row['RTs']) if int(row['RTs']) != 0 else bubble_size.append(0.5)
+
+    replies['Text'] = hover_text
+    replies['Size'] = bubble_size
+    sizeref = 2.*max(replies['Size'])/(100**2)
+
+    # Create figure
+    fig = go.Figure()
+    
+    fig = go.Figure(data=[go.Scatter(
+        x=replies['Polarity'], y=replies['Subjectivity'],
+        text=replies['Text'],
+        name='Retweet counts',
+        marker_size=replies['Size'],
+        # Tune marker appearance and layout
+        mode='markers',
+        marker=dict(
+            sizemode='area', 
+            sizeref=sizeref, 
+            line_width=2,
+            ))
+    ])
+
+    fig.update_layout(
+        title='Polarity vs Subjectivity following the candidate\'s tweet below',
+        xaxis=dict(
+            title='Polarity',
+            gridcolor='white',
+            gridwidth=2,
+        ),
+        yaxis=dict(
+            title='Subjectivity',
+            gridcolor='white',
+            gridwidth=2,
+        ),
+        paper_bgcolor='rgb(243, 243, 243)',
+        plot_bgcolor='rgb(243, 243, 243)',
+    )
+
+    return fig
 
 def get_most_frequently_used_words(candidate_num, tweets):
     """
@@ -171,8 +229,6 @@ def get_most_frequently_used_words(candidate_num, tweets):
     fig.savefig(filepath)
 
     return filepath
-
-
 
 def clean_tweets(tweet_words):
     """

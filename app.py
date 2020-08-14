@@ -244,7 +244,8 @@ app.layout = html.Div(
         Output('retweet_count','children'),
         Output('favorite_count', 'children'),
         Output('wordcloud','src'),
-        Output('statistics_graph', 'figure')
+        Output('statistics_graph', 'figure'),
+        Output('sentimental_analysis_graph','figure')
     ],
     [
         Input('upload-data', 'filename'),
@@ -255,36 +256,40 @@ def update_output(uploaded_filenames, uploaded_file_contents):
     Save uploaded files and update the dashboard
     """
 
-    # Check file names format and save information
-    data = verify_file_upload(uploaded_file_contents, uploaded_filenames)
-    # Save files in the CandidateData directory
-    save_file(uploaded_filenames, uploaded_file_contents)
+    if uploaded_file_contents is not None:
 
-    # Launch a connexion to the Twitter API
-    api = twitter_setup()
+        # Check file names format and save information
+        data = verify_file_upload(uploaded_file_contents, uploaded_filenames)
+        # Save files in the CandidateData directory
+        save_file(uploaded_filenames, uploaded_file_contents)
 
-    # Retrieve user profile information
-    df_user = update_candidate_profile(api, data)
-    
-    df_tweet = update_most_retweeted_tweet(api, data)
-    
-    wordcloud = generate_wordcloud(api, data)
+        # Launch a connexion to the Twitter API
+        api = twitter_setup()
 
-    fig_stats = update_rt_stats(api, data)
-    
-    return df_user.profile_image_url, \
-            '@'+df_user.screen_name, \
-            df_user.username, \
-            df_user.description, \
-            str(df_user.followers_count)+' followers',\
-            df_user.url, \
-            df_tweet.Content, \
-            'Created at: '+str(df_tweet.Date), \
-            str(df_tweet.RTs)+'RTs', \
-            str(df_tweet.Likes)+'Likes', \
-            wordcloud, \
-            fig_stats       
-            
+        # Retrieve user profile information
+        df_user = update_candidate_profile(api, data)
+        
+        df_tweet = update_most_retweeted_tweet(api, data)
+        
+        wordcloud = generate_wordcloud(api, data)
+
+        fig_stats = update_rt_stats(api, data)
+
+        sentimental_analysis = update_sentimental_analysis_graph(api, data)
+        
+        return df_user.profile_image_url, \
+                '@'+df_user.screen_name, \
+                df_user.username, \
+                df_user.description, \
+                str(df_user.followers_count)+' followers',\
+                df_user.url, \
+                df_tweet.Content, \
+                'Created at: '+str(df_tweet.Date), \
+                str(df_tweet.RTs)+'RTs', \
+                str(df_tweet.Likes)+'Likes', \
+                wordcloud, \
+                fig_stats, \
+                sentimental_analysis
 
 def verify_file_upload(contents, filenames):
     """
@@ -294,14 +299,11 @@ def verify_file_upload(contents, filenames):
     :return : (dic) {'candidate_num': 4864, 'keywords':filename1, 'hashtags': filename2}
     """
 
-    assert contents is not None
-    assert filenames is not None
-
     # Assert the filename matches the regex
     default_file_name = r'hashtags_candidate_\d*\.txt'
     assert re.match(default_file_name, filenames)
-  
-    num_candidate = re.findall(r"[0-9]+", filenames)[0]
+    
+    num_candidate = int(re.findall(r"[0-9]+", filenames)[0])
 
     files = {}
     files['num_candidate'] = num_candidate
@@ -322,10 +324,10 @@ def update_most_retweeted_tweet(api, data):
 
 def generate_wordcloud(api, data):
 
-    queries = get_candidate_queries(int(data["num_candidate"]), data["filepath"])
+    queries = get_candidate_queries(data["num_candidate"], data["filepath"])
     tweets_query = get_tweets_from_candidates_search_queries(queries, api)
     tweets_query_df = store_tweets_to_dataframe(tweets_query)
-    wordcloud_path = get_most_frequently_used_words(int(data["num_candidate"]), tweets_query_df)
+    wordcloud_path = get_most_frequently_used_words(data["num_candidate"], tweets_query_df)
 
     # Encode the image
     encoded_wordcloud = base64.b64encode(open(wordcloud_path, 'rb').read()).decode('ascii')
@@ -335,6 +337,12 @@ def update_rt_stats(api, data):
     tweets_candidate = get_candidate_tweets(data["num_candidate"], api)
     tweets_candidate_df = store_tweets_to_dataframe(tweets_candidate)
     fig = visualize_tweets_time_evolution(tweets_candidate_df)
+    return fig
+
+def update_sentimental_analysis_graph(api, data):
+    replies = get_replies_to_candidate(data["num_candidate"], api)
+    replies_df = store_tweets_to_dataframe(replies)
+    fig = sentimental_analysis_of_tweet_replies(replies_df)
     return fig
 
 def save_file(name, content):
