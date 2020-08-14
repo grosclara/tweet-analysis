@@ -129,7 +129,6 @@ header = html.Div(
             dbc.Col(
                 html.H2('Twitter Personality Analytics', style=TEXT_STYLE),
                 width=9,
-                #center
             ),
             dbc.Col(
                 html.A(
@@ -153,4 +152,22 @@ main_content = html.Div([
     content_third_row,
 ])
 
-content = html.Div([header, main_content], style = CONTENT_STYLE)
+footer = html.Div(
+    [
+        html.Hr(),
+        dbc.Row(
+            [
+            dbc.Col(
+                html.H3('Clara Gros, Student at CentraleSupélec', style=TEXT_STYLE),
+                width=9,
+            ),
+            dbc.Col(
+                html.H3('Aug 2020', style=TEXT_STYLE),
+                width=3,
+            ),
+            ]
+        ),   
+    ]
+) 
+
+content = html.Div([header, main_content, footer], style = CONTENT_STYLE)
