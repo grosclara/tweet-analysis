@@ -12,7 +12,6 @@ from tweet_collection.tweet_collect import *
 from tweet_collection.twitter_connection_setup import *
 from tweet_analysis.tweet_analyze import *
 import dash_bootstrap_components as dbc
-from layout import *
 
 def update_candidate_profile(api, num_candidate):
     user = get_candidate_info(api, num_candidate)
