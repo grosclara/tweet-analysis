@@ -18,8 +18,8 @@ input_groups = dbc.FormGroup(
     [
         dbc.InputGroup(
             [
-                dbc.InputGroupAddon("@", addon_type="prepend"),
-                dbc.Input(id="input-screen-name", type="text", placeholder="Screen name")
+                dbc.InputGroupAddon("#", addon_type="prepend"),
+                dbc.Input(id="input-hashtag", type="text", placeholder="Hashtag")
             ],
         ),
         html.Br(),
@@ -34,12 +34,12 @@ input_groups = dbc.FormGroup(
         html.Br(),
         dbc.InputGroup(
             [
-                dbc.Input(id="input-id", type="number", placeholder="Twitter ID")
+                dbc.Input(id="input-candidate-id", type="number", placeholder="Twitter ID")
             ],
         ),
         html.Br(),
         dbc.Button(
-            id='submit_button',
+            id='submit-button',
             n_clicks=0,
             children='Submit',
             color='primary',
@@ -75,7 +75,7 @@ content_first_row = dbc.Row([
         md=4
     ),
     dbc.Col(
-            dcc.Graph(id='tweets_evolution'), 
+            dcc.Graph(id='tweets-evolution'), 
             md=8
     ),
 ])
@@ -83,7 +83,7 @@ content_first_row = dbc.Row([
 content_second_row = dbc.Row(
     [
         dbc.Col(
-            dcc.Graph(id='bubble_chart'), md=12
+            dcc.Graph(id='bubble-chart'), md=12
         ),
     ]
 )
@@ -114,7 +114,7 @@ content_third_row = dbc.Row(
         dbc.Col(
             dbc.Card([
                 dbc.CardBody(html.P("Wordcloud image showing the recurring words in tweets related to the hashtag provided in parameter", className="card-text")),
-                dbc.CardImg(src="/static/images/placeholder286x180.png", bottom=True),
+                dbc.CardImg(src="/static/images/placeholder286x180.png", bottom=True, id="wordcloud-img"),
             ]),
             md=5
         )
