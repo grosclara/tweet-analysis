@@ -73,8 +73,8 @@ def update_output(n_clicks, hashtag, num_candidate):
                 str(df_user.followers_count)+' followers',\
                 df_tweet.Content, \
                 'Created at: '+str(df_tweet.Date), \
-                str(df_tweet.RTs)+'RTs', \
-                str(df_tweet.Likes)+'Likes', \
+                str(df_tweet.RTs)+' RTs', \
+                str(df_tweet.Likes)+' Likes', \
                 wordcloud, \
                 fig_stats, \
                 sentimental_analysis

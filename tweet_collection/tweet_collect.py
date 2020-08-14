@@ -46,7 +46,7 @@ def get_tweets_from_hashtag(hashtag, twitter_api, lang="en"):
     """
 
     try :
-        tweets = twitter_api.search(hashtag,language=lang, result_type='popular', rpp=100, tweet_mode='extended')
+        tweets = twitter_api.search(hashtag, language=lang, result_type='popular', rpp=100, tweet_mode='extended')
 
     except tweepy.TweepError as err:
         raise err

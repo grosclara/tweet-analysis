@@ -147,9 +147,13 @@ header = html.Div(
 )
 
 main_content = html.Div([
+    html.Br(),
     content_first_row,
+    html.Br(),
     content_second_row,
+    html.Br(),
     content_third_row,
+    html.Br(),
 ])
 
 footer = html.Div(
@@ -162,7 +166,7 @@ footer = html.Div(
                 width=9,
             ),
             dbc.Col(
-                html.H3('Aug 2020', style=TEXT_STYLE),
+                html.H3('Nov 2018', style=TEXT_STYLE),
                 width=3,
             ),
             ]

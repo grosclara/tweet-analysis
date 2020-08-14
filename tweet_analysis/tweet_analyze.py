@@ -6,6 +6,7 @@ import matplotlib.image as mpimg
 from textblob import TextBlob
 from textblob import Blobber
 import nltk
+import re
 nltk.download('punkt')
 nltk.download('stopwords')
 nltk.download('wordnet')
@@ -18,33 +19,6 @@ from wordcloud import WordCloud
 # Using plotly.express
 import plotly.express as px
 import plotly.graph_objects as go
-
-def store_tweets_on_disk(tweets, filename):
-    """
-    Serialize in a json file the tweets collected given in parameter
-    :param tweets: a list of tweets (SearchResult of Tweepy Status objects)
-    :param filename: the name of the file where to serialize data
-    """
-
-    # Convert the SearchResult object to a list and select a few attributes
-    tweet_dic = {}
-    count = 0
-
-    for tweet in tweets:
-        tweet_dic[count] = \
-        {
-            "ID":tweet.id, 
-            "Date": tweet.created_at.strftime("%m/%d/%Y, %H:%M:%S"), 
-            "Content":tweet.full_text, 
-            "Length": len(tweet.full_text),
-            #"hashtags": tweet.entities['hashtags'],
-            "RTs": tweet.retweet_count,
-            "Likes": tweet.favorite_count
-        }
-        count += 1
-
-    with open(filename, "w") as write_file:
-        json.dump(tweet_dic, write_file)
 
 def store_tweets_to_dataframe(tweets):
     """
@@ -86,6 +60,8 @@ def store_user_to_dataframe(user):
     :return (pd.Series) the Serie containing the relevant information
     """
 
+    profile_pic_url = re.sub(r'_normal', '', user.profile_image_url)
+
     l = {
         "ID":user.id,
         "username": user.name,
@@ -93,7 +69,7 @@ def store_user_to_dataframe(user):
         "description": user.description,
         "url": user.url,
         "followers_count": user.followers_count,
-        "profile_image_url": user.profile_image_url
+        "profile_image_url": profile_pic_url
     }
 
     df = pd.Series(l)
