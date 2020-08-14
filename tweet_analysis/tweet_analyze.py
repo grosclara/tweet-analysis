@@ -177,14 +177,16 @@ def sentimental_analysis_of_tweet_replies(replies):
         # Tune marker appearance and layout
         mode='markers',
         marker=dict(
+            color=replies["Likes"],
             sizemode='area', 
             sizeref=sizeref, 
             line_width=2,
+            showscale=True
             ))
     ])
 
     fig.update_layout(
-        title='Polarity vs Subjectivity following the candidate\'s tweet below',
+        title='Polarity vs Subjectivity of the candidate\'s tweets',
         xaxis=dict(
             title='Polarity',
             gridcolor='white',
@@ -221,14 +223,6 @@ def get_most_frequently_used_words(candidate_num, tweets):
     wc.generate_from_frequencies(words.word_counts)
 
     return wc.to_image()
-""" 
-    # save
-    fig = plt.figure()
-    plt.imshow(wc, interpolation="bilinear")
-    plt.axis("off")
-    fig.savefig(filepath)
-
-    return filepath """
 
 def clean_tweets(tweet_words):
     """
