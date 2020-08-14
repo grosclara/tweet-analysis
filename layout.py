@@ -62,22 +62,15 @@ content_first_row = dbc.Row([
         dbc.Card([
             dbc.CardImg(src="/static/images/placeholder286x180.png", top=True, id='profile-picture'),
             dbc.CardBody([
-                html.H5("Most retweeted tweet", className="card-title"),
-                html.P("This card has an image on top, and a button below",
+                html.H5("Username", className="card-title", id='username'),
+                html.P("Personal description",
                         className="card-text",
-                        id='tweet-content', 
+                        id='description', 
                 ),
                 html.Footer(
-                    html.Small("Created at:", id='tweet-date', className="text-muted")
-                ),
-                html.Footer(
-                    html.Small("Rewteets count", id='rt-count', className="text-muted")
-                ),
-                html.Footer(
-                    html.Small("Likes count", id='like-count', className="text-muted")
-                ),
-            ]
-            ),
+                        html.Small("Followers count", id='followers-count', className="text-muted")
+                    ),
+            ]),
         ]),
         md=4
     ),
@@ -90,33 +83,42 @@ content_first_row = dbc.Row([
 content_second_row = dbc.Row(
     [
         dbc.Col(
-            dcc.Graph(id='graph_1'), md=4
+            dcc.Graph(id='bubble_chart'), md=12
         ),
-        dbc.Col(
-            dcc.Graph(id='graph_2'), md=4
-        ),
-        dbc.Col(
-            dcc.Graph(id='graph_3'), md=4
-        )
     ]
 )
 
 content_third_row = dbc.Row(
     [
         dbc.Col(
-            dcc.Graph(id='graph_4'), md=12,
-        )
-    ]
-)
-
-content_fourth_row = dbc.Row(
-    [
-        dbc.Col(
-            dcc.Graph(id='graph_5'), md=6
+            dbc.Card([
+                dbc.CardBody([
+                    html.H5("Most retweeted tweet", className="card-title"),
+                    html.P("Retweet content",
+                            className="card-text",
+                            id='tweet-content', 
+                    ),
+                    html.Footer(
+                        html.Small("Created at:", id='tweet-date', className="text-muted")
+                    ),
+                    html.Footer(
+                        html.Small("Rewteets count", id='rt-count', className="text-muted")
+                    ),
+                    html.Footer(
+                        html.Small("Likes count", id='like-count', className="text-muted")
+                    ),
+                ]),
+            ]),
+            md=7
         ),
         dbc.Col(
-            dcc.Graph(id='graph_6'), md=6
+            dbc.Card([
+                dbc.CardBody(html.P("Wordcloud image showing the recurring words in tweets related to the hashtag provided in parameter", className="card-text")),
+                dbc.CardImg(src="/static/images/placeholder286x180.png", bottom=True),
+            ]),
+            md=5
         )
+        
     ]
 )
 
@@ -149,7 +151,6 @@ main_content = html.Div([
     content_first_row,
     content_second_row,
     content_third_row,
-    content_fourth_row
 ])
 
 content = html.Div([header, main_content], style = CONTENT_STYLE)
