@@ -220,15 +220,15 @@ def get_most_frequently_used_words(candidate_num, tweets):
     # generate word cloud
     wc.generate_from_frequencies(words.word_counts)
 
-    filepath = './images/wordcloud_{}.png'.format(candidate_num)
-
+    return wc.to_image()
+""" 
     # save
     fig = plt.figure()
     plt.imshow(wc, interpolation="bilinear")
     plt.axis("off")
     fig.savefig(filepath)
 
-    return filepath
+    return filepath """
 
 def clean_tweets(tweet_words):
     """

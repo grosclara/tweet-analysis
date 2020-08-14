@@ -3,8 +3,8 @@
 # Run this app with `python app.py` and
 # visit http://127.0.0.1:8050/ in your web browser.
 
+from io import BytesIO
 import base64
-import datetime
 import io
 import plotly.graph_objs as go
 import re
@@ -329,11 +329,15 @@ def generate_wordcloud(api, data):
     queries = get_candidate_queries(data["num_candidate"], data["filepath"])
     tweets_query = get_tweets_from_candidates_search_queries(queries, api)
     tweets_query_df = store_tweets_to_dataframe(tweets_query)
-    wordcloud_path = get_most_frequently_used_words(data["num_candidate"], tweets_query_df)
+    wordcloud = get_most_frequently_used_words(data["num_candidate"], tweets_query_df)
 
-    # Encode the image
+    img = BytesIO()
+    wordcloud.save(img, format='PNG')
+    return 'data:image/png;base64,{}'.format(base64.b64encode(img.getvalue()).decode())
+
+    """ # Encode the image
     encoded_wordcloud = base64.b64encode(open(wordcloud_path, 'rb').read()).decode('ascii')
-    return 'data:image/png;base64,{}'.format(encoded_wordcloud)
+    return 'data:image/png;base64,{}'.format(encoded_wordcloud) """
 
 def update_rt_stats(api, data):
     tweets_candidate = get_candidate_tweets(data["num_candidate"], api)
@@ -359,3 +363,5 @@ def save_file(name, content):
 
 if __name__ == '__main__':
     app.run_server(debug=True)
+
+filepath = './images/wordcloud_{}.png'.format(candidate_num)
