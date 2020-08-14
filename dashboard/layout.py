@@ -12,7 +12,7 @@ from tweet_collection.tweet_collect import *
 from tweet_collection.twitter_connection_setup import *
 from tweet_analysis.tweet_analyze import *
 import dash_bootstrap_components as dbc
-from style import *
+from .style import *
 
 input_groups = dbc.FormGroup(
     [

@@ -17,8 +17,8 @@ from tweet_collection.tweet_collect import *
 from tweet_collection.twitter_connection_setup import *
 from tweet_analysis.tweet_analyze import *
 import dash_bootstrap_components as dbc
-from layout import *
-from callbacks import *
+from dashboard.callbacks import *
+from dashboard.layout import *
 
 external_stylesheets = [dbc.themes.BOOTSTRAP]
 
