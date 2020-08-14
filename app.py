@@ -290,6 +290,8 @@ def update_output(uploaded_filenames, uploaded_file_contents):
                 wordcloud, \
                 fig_stats, \
                 sentimental_analysis
+    else:
+        raise dash.exceptions.PreventUpdate
 
 def verify_file_upload(contents, filenames):
     """
