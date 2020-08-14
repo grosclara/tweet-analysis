@@ -8,3 +8,5 @@ dash
 regex
 wordcloud
 dash_bootstrap_components
+pytest-cov
+coverage

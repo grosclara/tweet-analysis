@@ -1,6 +1,5 @@
 from ..tweet_collection.twitter_connection_setup import *
-from ..tweet_collection.get_queries import *
-
+from ..tweet_collection.tweet_collect import *
 import pytest
 
 class TestClassTwitterConnectionSetup:
@@ -41,9 +40,9 @@ class TestClassSearchQueries:
             get_candidate_queries(self.num_candidate, self.file_path, invalid_keyword_type)
 
     def test_valid_queries(self):
-        assert get_candidate_queries(self.num_candidate, self.file_path, self.keyword_type) == ['Donald AND Trump','Trump']
+        assert get_candidate_queries(self.num_candidate, self.file_path, self.keyword_type) == ['Donald Trump','Trump']
 
-class TestClassCollectTweets:
+""" class TestClassCollectTweets:
 
     api = twitter_setup()
     candidate_id = 939091 #Joe Biden Twitter ID
@@ -59,4 +58,9 @@ class TestClassCollectTweets:
 
     def test_get_live_candidate_actuality_tweets:
         pass
+
+class TestClassStroeTweets:
+
+    def test_store_tweets:
+        pass """
 
