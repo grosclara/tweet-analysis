@@ -30,7 +30,7 @@ def get_candidate_tweets(candidate_id, twitter_api):
         # Retrieve the candidate's tweet
         statuses = twitter_api.user_timeline(id = candidate_id, count = 100, tweet_mode='extended')
     except tweepy.TweepError :
-        raise err
+        raise
     except tweepy.RateLimitError:
         raise
 
