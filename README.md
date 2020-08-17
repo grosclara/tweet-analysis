@@ -8,8 +8,8 @@ The objective of this mini application is to develop a system to analyze opinion
 
 The MVP (Minimum Viable Product) of this project will consist in delivering a first version of the end-to-end analysis tool, i.e. from data collection to sentiment prediction and its visualization with simple solutions as shown below.
 
-![ALT](images/biden_example_1.png)
-![ALT](images/biden_example_2.png)
+![ALT](images/example_1.png)
+![ALT](images/example_2.png)
 
 In particular, the MVP :
 * Will allow to connect to the Twitter API to collect a set of tweets related to an entity.
