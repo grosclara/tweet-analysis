@@ -36,7 +36,7 @@ def get_candidate_tweets(candidate_id, twitter_api):
 
     return statuses
 
-def get_tweets_from_hashtag(hashtag, twitter_api, lang="en"):
+def get_tweets_from_hashtag(hashtag, twitter_api):
     """
     Given a query list (of the search type) and a twitter_api connection instance, 
     retrieve and return the tweets responding to the various queries.
@@ -46,7 +46,7 @@ def get_tweets_from_hashtag(hashtag, twitter_api, lang="en"):
     """
 
     try :
-        tweets = twitter_api.search(hashtag, language=lang, result_type='popular', rpp=100, tweet_mode='extended')
+        tweets = twitter_api.search(hashtag, result_type='popular', rpp=100, tweet_mode='extended')
 
     except tweepy.TweepError as err:
         raise err
