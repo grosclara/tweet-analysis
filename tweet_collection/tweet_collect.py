@@ -1,7 +1,4 @@
 import tweepy
-import json
-from datetime import datetime
-import pandas as pd
 
 def get_candidate_info(twitter_api, candidate_id):
     """

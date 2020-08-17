@@ -1,6 +1,25 @@
 # Design and program a set of functions to extract relevant information from a set of tweets
 import pandas as pd
 import numpy as np
+
+import re
+import string
+
+from textblob import TextBlob
+from textblob import Word
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+from nltk.stem.porter import PorterStemmer
+
+from wordcloud import WordCloud
+
+import plotly.express as px
+import plotly.graph_objects as go
+
+
+""" # Design and program a set of functions to extract relevant information from a set of tweets
+import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 from textblob import TextBlob
@@ -19,6 +38,7 @@ from wordcloud import WordCloud
 # Using plotly.express
 import plotly.express as px
 import plotly.graph_objects as go
+ """
 
 def store_tweets_to_dataframe(tweets):
     """
@@ -172,7 +192,7 @@ def sentimental_analysis_of_tweet_replies(replies):
         paper_bgcolor='rgb(243, 243, 243)',
         plot_bgcolor='rgb(243, 243, 243)',
     )
-    
+
     return fig
 
 def get_most_frequently_used_words(candidate_num, tweets):

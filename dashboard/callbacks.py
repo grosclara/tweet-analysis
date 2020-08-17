@@ -1,17 +1,9 @@
 from io import BytesIO
 import base64
-import io
-import plotly.graph_objs as go
-import re
-import dash
-from dash.dependencies import Input, Output, State
-import dash_core_components as dcc
-import dash_html_components as html
-import dash_table
+
 from tweet_collection.tweet_collect import *
 from tweet_collection.twitter_connection_setup import *
 from tweet_analysis.tweet_analyze import *
-import dash_bootstrap_components as dbc
 
 def update_candidate_profile(api, num_candidate):
     user = get_candidate_info(api, num_candidate)
