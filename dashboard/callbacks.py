@@ -29,18 +29,39 @@ def generate_wordcloud(api, hashtag, num_candidate):
     tweets_query_df = store_tweets_to_dataframe(tweets_query)
     wordcloud = get_most_frequently_used_words(num_candidate, tweets_query_df)
 
-    img = BytesIO()
-    wordcloud.save(img, format='PNG')
-    return 'data:image/png;base64,{}'.format(base64.b64encode(img.getvalue()).decode())
+    image = ''
+
+    try:
+        img = BytesIO()
+        wordcloud.save(img, format='PNG')
+        image = 'data:image/png;base64,{}'.format(base64.b64encode(img.getvalue()).decode())
+
+    except (OSError, IOError, AttributeError, Exception):
+        image_filename = '../images/error.png'
+        encoded_image = base64.b64encode(open(image_filename, 'rb').read())
+        image = 'data:image/png;base64,{}'.format(base64.b64encode(encoded_image).decode(ascii))
+    
+    finally:
+        return image
 
 def update_rt_stats(api, num_candidate):
     tweets_candidate = get_candidate_tweets(num_candidate, api)
     tweets_candidate_df = store_tweets_to_dataframe(tweets_candidate)
-    fig = visualize_tweets_time_evolution(tweets_candidate_df)
-    return fig
+
+    try:
+        fig = visualize_tweets_time_evolution(tweets_candidate_df)
+    except Exception:
+        fig = {}
+    finally:
+        return fig
 
 def update_sentimental_analysis_graph(api, num_candidate):
     replies = get_replies_to_candidate(num_candidate, api)
     replies_df = store_tweets_to_dataframe(replies)
-    fig = sentimental_analysis_of_tweet_replies(replies_df)
-    return fig
+
+    try:
+        fig = sentimental_analysis_of_tweet_replies(replies_df)
+    except ValueError:
+        fig = {}
+    finally:
+        return fig

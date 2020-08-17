@@ -4,9 +4,6 @@
 ### TODO list ###
 todo.txt
 
-### Wordcloud files ###
-*.png
-
 ### Secret variables ###
 .credentials.py
 

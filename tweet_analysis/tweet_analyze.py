@@ -27,29 +27,28 @@ def store_tweets_to_dataframe(tweets):
     :return (pd.DataFrame) the DataFrame containing tweets relevant information
     """
 
-    l = []
+    """         
+        df.Date = df.Date.astype('datetime64[ns]')
+        df.Length = df.Length.astype('int32')
+        df.RTs = df.RTs.astype('int32')
+        df.Content = df.Content.astype('string')
+        df.Likes = df.Likes.astype('int32') 
+    """
 
-    # Convert the SearchResult object to a list and select a few attributes
+
+    column_names = ["ID", "Date", "Content", "Length", "RTs", "Likes"]
+    df = pd.DataFrame(columns = column_names)
+
+    # Fill the dataframe
     for tweet in tweets:
-        l.append(\
-        {
-            "ID":tweet.id, 
-            "Date": tweet.created_at.strftime("%m/%d/%Y, %H:%M:%S"), 
-            "Content":tweet.full_text, 
-            "Length": len(tweet.full_text),
-            #"hashtags": tweet.entities['hashtags'],
-            "RTs": tweet.retweet_count,
-            "Likes": tweet.favorite_count
-        }
-        )
-
-    df = pd.DataFrame(l)
-
-    df.Date = df.Date.astype('datetime64[ns]')
-    df.Length = df.Length.astype('int32')
-    df.RTs = df.RTs.astype('int32')
-    df.Content = df.Content.astype('string')
-    df.Likes = df.Likes.astype('int32')
+        df = df.append({\
+                "ID":tweet.id, 
+                "Date": tweet.created_at.strftime("%m/%d/%Y, %H:%M:%S"), 
+                "Content":tweet.full_text, 
+                "Length": len(tweet.full_text),
+                "RTs": tweet.retweet_count,
+                "Likes": tweet.favorite_count
+            }, ignore_index=True)
 
     return df
 
@@ -85,10 +84,7 @@ def get_the_most_retweeted_tweet(tweets):
 
     rt_max  = np.max(tweets['RTs'])
     rt  = tweets[tweets.RTs == rt_max].squeeze()
-    # Max RTs:
-    #print("The tweet with more retweets is: \n{}".format(tweets['Content'][rt]))
-    #print("Number of retweets: {}".tweet_mode=extendedormat(rt_max))
-    #print("{} characters.\n".format(tweets['Length'][rt])) """
+
     return rt
 
 def visualize_tweets_time_evolution(tweets):
@@ -135,7 +131,7 @@ def sentimental_analysis_of_tweet_replies(replies):
                                                 likes=row['Likes'],
                                                 polarity=row['Polarity'],
                                                 subj = row['Subjectivity']))
-    
+      
         bubble_size.append(row['RTs']) if int(row['RTs']) != 0 else bubble_size.append(0.5)
 
     replies['Text'] = hover_text
@@ -144,7 +140,7 @@ def sentimental_analysis_of_tweet_replies(replies):
 
     # Create figure
     fig = go.Figure()
-    
+        
     fig = go.Figure(data=[go.Scatter(
         x=replies['Polarity'], y=replies['Subjectivity'],
         text=replies['Text'],
@@ -176,7 +172,7 @@ def sentimental_analysis_of_tweet_replies(replies):
         paper_bgcolor='rgb(243, 243, 243)',
         plot_bgcolor='rgb(243, 243, 243)',
     )
-
+    
     return fig
 
 def get_most_frequently_used_words(candidate_num, tweets):
@@ -188,17 +184,22 @@ def get_most_frequently_used_words(candidate_num, tweets):
 
     words = ''
     textual_content = tweets.Content.to_list()
-    for tweet in textual_content:
-        for word in tweet.split(' '):
-            words += ' '+word
 
-    words = TextBlob(clean_tweets(words))
+    try :
+        for tweet in textual_content:
+            for word in tweet.split(' '):
+                words += ' '+word
 
-    wc = WordCloud(background_color="black", max_words=1000)
-    # generate word cloud
-    wc.generate_from_frequencies(words.word_counts)
+        words = TextBlob(clean_tweets(words))
 
-    return wc.to_image()
+        wc = WordCloud(background_color="black", max_words=1000)
+        # generate word cloud
+        wc.generate_from_frequencies(words.word_counts)
+
+        return wc.to_image()
+
+    except ValueError:
+        return None
 
 def clean_tweets(tweet_words):
     """

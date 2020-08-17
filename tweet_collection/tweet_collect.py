@@ -14,8 +14,10 @@ def get_candidate_info(twitter_api, candidate_id):
     try :
         # Retrieve the candidate's tweet
         profile_details = twitter_api.get_user(user_id=str(candidate_id))
-    except tweepy.TweepError as err:
-        raise err
+    except tweepy.TweepError:
+        raise
+    except tweepy.RateLimitError:
+        raise
 
     return profile_details
 
@@ -30,9 +32,10 @@ def get_candidate_tweets(candidate_id, twitter_api):
     try :
         # Retrieve the candidate's tweet
         statuses = twitter_api.user_timeline(id = candidate_id, count = 100, tweet_mode='extended')
-
-    except tweepy.TweepError as err:
+    except tweepy.TweepError :
         raise err
+    except tweepy.RateLimitError:
+        raise
 
     return statuses
 
@@ -47,9 +50,10 @@ def get_tweets_from_hashtag(hashtag, twitter_api):
 
     try :
         tweets = twitter_api.search(hashtag, result_type='popular', rpp=100, tweet_mode='extended')
-
-    except tweepy.TweepError as err:
-        raise err
+    except tweepy.TweepError:
+        raise
+    except tweepy.RateLimitError:
+        raise
 
     return tweets
     
@@ -78,19 +82,12 @@ def get_replies_to_candidate(candidate_id, twitter_api):
                     popular_replies.append(reply)
         
         except tweepy.RateLimitError as e:
-            #logging.error("Twitter api rate limit reached".format(e))
-            #time.sleep(60)
             continue
 
         except tweepy.TweepError as e:
-            #logging.error("Tweepy error occured:{}".format(e))
             break
 
         except StopIteration:
-            break
-
-        except Exception as e:
-            #logger.error("Failed while fetching replies {}".format(e))
             break
     
     return popular_replies
