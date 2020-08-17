@@ -27,8 +27,8 @@ def get_candidate_tweets(candidate_id, twitter_api):
     """
 
     try :
-        # Retrieve the candidate's tweet
-        statuses = twitter_api.user_timeline(id = candidate_id, count = 100, tweet_mode='extended')
+        # Retrieve the candidate's tweet excluding RTs
+        statuses = tweepy.Cursor(twitter_api.user_timeline, id = candidate_id, include_rts=False, result_type='popular', tweet_mode='extended').items()
     except tweepy.TweepError :
         raise
     except tweepy.RateLimitError:
